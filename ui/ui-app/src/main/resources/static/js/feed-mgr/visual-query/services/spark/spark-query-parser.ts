@@ -49,11 +49,11 @@ export class SparkQueryParser extends QueryParser {
                 } else if (datasources != null && datasources.length > 0 && datasources[0].id === SparkConstants.USER_FILE_DATASOURCE) {
                     return "";
                 } else if (datasources == null || datasources.length === 0 || datasources[0].id === SparkConstants.HIVE_DATASOURCE) {
-                    return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = sqlContext.sql(\"" + StringUtils.escapeScala(sql) + "\")\n";
+                    return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = sqlContext.sql(\"" + StringUtils.escapeScala(sql) + "\")\nprintln(\"Script from user hive datasource\")";
                 } else {
                     let subquery = "(" + sql + ") AS KYLO_SPARK_QUERY";
                     return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = " + DATASOURCE_PROVIDER + ".getTableFromDatasource(\"" + StringUtils.escapeScala(subquery) + "\", \""
-                        + datasources[0].id + "\", sqlContext)\n";
+                        + datasources[0].id + "\", sqlContext)\nprintln(\"Script from user datasource\")";
                 }
         }
 
@@ -67,11 +67,11 @@ export class SparkQueryParser extends QueryParser {
             //only allowed if using 1 datasource
             throw new Error("Not valid datasources: " + catalogDataSources);
         } else if (catalogDataSources == null || (hiveDataSource != null && hiveDataSource != undefined && catalogDataSources[0].id === hiveDataSource.id)) {
-            return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = sqlContext.sql(\"" + StringUtils.escapeScala(sql) + "\")\n";
+            return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = sqlContext.sql(\"" + StringUtils.escapeScala(sql) + "\")\nprintln(\"Script from catalog hive datasource\")";
         } else {
             let subquery = "(" + sql + ") AS KYLO_SPARK_QUERY";
             return "var " + SparkConstants.DATA_FRAME_VARIABLE + " = " + DATASOURCE_PROVIDER + ".getTableFromCatalogDataSource(\"" + StringUtils.escapeScala(subquery) + "\", \""
-                + catalogDataSources[0].id + "\", sqlContext)\n";
+                + catalogDataSources[0].id + "\", sqlContext)\nprintln(\"Script from catalog datasource\")";
         }
     }
 
@@ -130,7 +130,7 @@ export class SparkQueryParser extends QueryParser {
 
 
         script += joinScript+this.joinSelect(tree.targetList);
-        
+
         script += "\ndf.write.csv('s3://dds-v3/iris/output/csv-files/')\n"
 
         return script;
