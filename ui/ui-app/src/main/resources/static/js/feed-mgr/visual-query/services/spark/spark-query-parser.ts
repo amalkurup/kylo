@@ -130,7 +130,8 @@ export class SparkQueryParser extends QueryParser {
 
 
         script += joinScript+this.joinSelect(tree.targetList);
-
+        
+        script += "\ndf.write.csv('s3://dds-v3/iris/output/csv-files/')\n"
 
         return script;
     }
